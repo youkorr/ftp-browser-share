@@ -1,32 +1,14 @@
-ARG BUILD_FROM
-FROM $BUILD_FROM
+FROM python:3.9-slim
 
-# Update package index and install requirements separately for better debugging
-RUN apk update
-
-# Install system dependencies with necessary build tools
-RUN apk add --no-cache \
-    python3 \
-    py3-pip \
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
     nodejs \
     npm \
-    gcc \
-    musl-dev \
-    python3-dev \
-    libffi-dev \
-    openssl-dev \
-    make
+    lftp \
+    && rm -rf /var/lib/apt/lists/*
 
-# Upgrade pip first
-RUN pip3 install --upgrade pip setuptools wheel
-
-# Install Python dependencies separately
-RUN pip3 install --no-cache-dir flask
-RUN pip3 install --no-cache-dir flask-cors
-RUN pip3 install --no-cache-dir pyftpdlib
-
-# Install lftp separately
-RUN apk add --no-cache lftp
+# Install Python dependencies
+RUN pip install --no-cache-dir flask flask-cors pyftpdlib
 
 # Create app directory
 WORKDIR /app
