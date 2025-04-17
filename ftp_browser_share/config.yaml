@@ -1,0 +1,32 @@
+---
+name: FTP Browser Share
+version: "2.0.0"
+slug: ftp_browser_share
+description: "Browse, select and share files from ESP32-S3-BOX-3 via FTP with web interface"
+url: "https://github.com/your-repo/ftp-browser-share"
+arch:
+  - armv7
+  - aarch64
+  - amd64
+startup: application
+boot: auto
+ports:
+  2121/tcp: 2121
+  3000/tcp: 3000
+volumes:
+  - /share:/share
+  - /config/www:/app/www
+options:
+  host: ""
+  username: ""
+  password: ""
+  port: 21
+  root_path: ""
+  share_duration: 3600
+schema:
+  host: str
+  username: str
+  password: str
+  port: int
+  root_path: str
+  share_duration: int
