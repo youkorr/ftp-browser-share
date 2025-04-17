@@ -1,17 +1,13 @@
-# Étape 1: Build du frontend avec Node.js
-FROM node:18 as build-frontend
-
-WORKDIR /app
-COPY . .
-RUN npm install
-RUN npm run build || (echo "Build failed" && cat package.json && ls -la && exit 1)
-
-# Étape 2: Image finale avec Python
 FROM python:3.9-slim
 
-# Install system dependencies
+# Install Node.js 18.x
 RUN apt-get update && apt-get install -y \
+    curl \
+    gnupg \
     lftp \
+    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y \
+    nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -20,12 +16,24 @@ RUN pip install --no-cache-dir flask flask-cors pyftpdlib
 # Create app directory
 WORKDIR /app
 
-# Copier les fichiers backend
-COPY ./api ./api
-COPY ./run.sh ./run.sh
+# Copy all files
+COPY . .
 
-# Copier les fichiers frontend construits de l'étape précédente
-COPY --from=build-frontend /app/build ./build
+# Debug information
+RUN echo "Node version:" && node --version
+RUN echo "NPM version:" && npm --version
+RUN echo "Package.json content:" && cat package.json
+RUN echo "Directory structure:" && ls -la
+
+# Install packages with detailed logs
+RUN npm install --verbose
+
+# Try to run the build with debugging
+RUN npm run build --verbose || (echo "BUILD FAILED - Debug info:" && \
+    npm list && \
+    echo "LOGS:" && \
+    cat npm-debug.log* 2>/dev/null || echo "No npm debug log found" && \
+    exit 1)
 
 # Make scripts executable
 RUN chmod +x /app/run.sh
