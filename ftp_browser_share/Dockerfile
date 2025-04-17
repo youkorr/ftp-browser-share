@@ -1,16 +1,24 @@
 ARG BUILD_FROM
 FROM $BUILD_FROM
 
-# Install requirements
+# Update package index and install requirements separately for better debugging
+RUN apk update
+
+# Install system dependencies
 RUN apk add --no-cache \
+    python3 \
     py3-pip \
     nodejs \
-    npm \
-    && pip3 install --no-cache-dir \
+    npm
+
+# Install Python dependencies separately
+RUN pip3 install --no-cache-dir \
     flask \
     flask-cors \
-    pyftpdlib \
-    lftp
+    pyftpdlib 
+
+# Install lftp separately
+RUN apk add --no-cache lftp
 
 # Create app directory
 WORKDIR /app
@@ -30,4 +38,5 @@ RUN chmod +x /app/run.sh
 RUN chmod +x /app/api/start_api.sh
 
 EXPOSE 3000
+
 CMD [ "/app/run.sh" ]
