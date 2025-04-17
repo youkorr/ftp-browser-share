@@ -1,13 +1,17 @@
+# Étape 1: Build du frontend avec Node.js
+FROM node:18 as build-frontend
+
+WORKDIR /app
+COPY . .
+RUN npm install
+RUN npm run build || (echo "Build failed" && cat package.json && ls -la && exit 1)
+
+# Étape 2: Image finale avec Python
 FROM python:3.9-slim
 
-# Install system dependencies with a more recent Node.js version
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    curl \
-    gnupg \
     lftp \
-    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y \
-    nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
@@ -16,17 +20,12 @@ RUN pip install --no-cache-dir flask flask-cors pyftpdlib
 # Create app directory
 WORKDIR /app
 
-# Copy all files first so package.json and build scripts are available
-COPY . .
+# Copier les fichiers backend
+COPY ./api ./api
+COPY ./run.sh ./run.sh
 
-# Install frontend dependencies with detailed error logging
-RUN npm install
-
-# Debug the build environment
-RUN node --version && npm --version
-
-# Build frontend with more detailed output
-RUN npm run build || (echo "Build failed - showing package.json contents:" && cat package.json && exit 1)
+# Copier les fichiers frontend construits de l'étape précédente
+COPY --from=build-frontend /app/build ./build
 
 # Make scripts executable
 RUN chmod +x /app/run.sh
