@@ -4,7 +4,7 @@ FROM homeassistant/amd64-base-python:3.9-alpine3.13
 LABEL description="FTP Browser Share Addon"
 LABEL maintainer="Votre Nom"
 
-# Installer les dépendances système
+# Installer les dépendances système et s6-overlay
 RUN apk add --no-cache \
     nginx \
     python3 \
@@ -12,7 +12,15 @@ RUN apk add --no-cache \
     py3-flask \
     nodejs \
     npm \
-    tini
+    bash
+
+# Télécharger et installer l'overlay S6 (version stable)
+ARG S6_OVERLAY_VERSION=3.1.5.0
+RUN wget -O /tmp/s6-overlay-noarch.tar.xz https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-noarch.tar.xz && \
+    wget -O /tmp/s6-overlay-x86_64.tar.xz https://github.com/just-containers/s6-overlay/releases/download/v${S6_OVERLAY_VERSION}/s6-overlay-x86_64.tar.xz && \
+    tar -C / -Jxpf /tmp/s6-overlay-noarch.tar.xz && \
+    tar -C / -Jxpf /tmp/s6-overlay-x86_64.tar.xz && \
+    rm -f /tmp/s6-overlay-noarch.tar.xz /tmp/s6-overlay-x86_64.tar.xz
 
 # Installer les dépendances Python
 RUN pip3 install --no-cache-dir \
@@ -21,8 +29,8 @@ RUN pip3 install --no-cache-dir \
 
 # Créer les répertoires nécessaires
 RUN mkdir -p \
-    /run/s6/services/nginx \
-    /run/s6/services/ftp-server \
+    /etc/services.d/nginx \
+    /etc/services.d/ftp-server \
     /usr/share/ftpbrowser \
     /config/www/partage/shared
 
@@ -43,13 +51,11 @@ RUN npm install
 RUN chown -R root:root /usr/share/ftpbrowser \
     && chmod -R 755 /usr/share/ftpbrowser
 
-# Make sure /init script exists and is executable
-RUN if [ -f "/init" ]; then chmod 755 /init; fi
+# S'assurer que l'init script a les bonnes permissions
+RUN chmod 755 /init || true
 
-# Use tini as an init system
-ENTRYPOINT ["/sbin/tini", "--"]
-
-# Define your command to start your services
-CMD ["/run.sh"]
+# Point d'entrée pour S6
+ENTRYPOINT ["/init"]
+CMD []
 
 
