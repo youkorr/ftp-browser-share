@@ -1,4 +1,5 @@
-#!/usr/bin/with-contenv bashio
-# Démarrer Nginx
-bashio::log.info "Starting Nginx..."
+#!/bin/bash
+# Service Nginx
+echo "Démarrage de Nginx..."
 exec nginx -g "daemon off;"
+
