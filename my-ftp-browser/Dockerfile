@@ -4,8 +4,9 @@ FROM ${BUILD_FROM}
 # Définir la version du build
 ARG BUILD_VERSION=dev
 
-# Installation des dépendances système
-RUN apk add --no-cache \
+# Mise à jour des référentiels et installation des dépendances système
+RUN apk update && \
+    apk add --no-cache \
     python3 \
     python3-dev \
     py3-pip \
