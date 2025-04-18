@@ -21,14 +21,16 @@ RUN apk add --no-cache \
     openssl-dev
 
 # Installation des dépendances Python
-RUN pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir \
-    Flask==2.0.1 \
-    Werkzeug==2.0.3 \
-    requests==2.26.0 \
-    PyJWT==2.1.0 \
-    python-dateutil==2.8.2 \
-    pyftpdlib --break-system-packages
+# Mise à jour de pip séparément
+RUN pip3 install --no-cache-dir --upgrade pip
+
+# Installation des dépendances Python une par une pour mieux identifier les erreurs
+RUN pip3 install --no-cache-dir Flask==2.0.1 --break-system-packages
+RUN pip3 install --no-cache-dir Werkzeug==2.0.3 --break-system-packages
+RUN pip3 install --no-cache-dir requests==2.26.0 --break-system-packages
+RUN pip3 install --no-cache-dir PyJWT==2.1.0 --break-system-packages
+RUN pip3 install --no-cache-dir python-dateutil==2.8.2 --break-system-packages
+RUN pip3 install --no-cache-dir pyftpdlib --break-system-packages
 
 # Copie des fichiers de configuration, scripts et frontend
 COPY rootfs/ /
