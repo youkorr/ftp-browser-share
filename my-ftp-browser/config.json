@@ -27,7 +27,7 @@
     "log_level": "list(trace|debug|info|notice|warning|error|fatal)"
   },
   "ports": {
-    "80/tcp": 8099
+    "8099/tcp": 8100
   },
   "map": [
     "config:rw",
