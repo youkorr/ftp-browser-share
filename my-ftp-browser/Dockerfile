@@ -1,5 +1,4 @@
 ARG BUILD_FROM=ghcr.io/hassio-addons/base:13.0.0
-
 FROM ${BUILD_FROM}
 
 # Installation des dépendances système
@@ -14,17 +13,18 @@ RUN apk add --no-cache \
     curl \
     tzdata \
     nodejs \
-    npm
+    npm \
+    libffi-dev \
+    openssl-dev
 
-# Mise à jour de pip et installation des dépendances Python
-RUN pip3 install --no-cache-dir --upgrade pip && \
-    pip3 install --no-cache-dir \
-        flask \
-        requests \
-        PyJWT \
-        python-dateutil \
-        werkzeug \
-        pyftpdlib
+# Mise à jour de pip et installation des dépendances Python (séparées pour faciliter le débogage)
+RUN pip3 install --no-cache-dir --upgrade pip
+RUN pip3 install --no-cache-dir flask
+RUN pip3 install --no-cache-dir requests
+RUN pip3 install --no-cache-dir PyJWT
+RUN pip3 install --no-cache-dir python-dateutil
+RUN pip3 install --no-cache-dir werkzeug
+RUN pip3 install --no-cache-dir pyftpdlib
 
 # Copie des fichiers de configuration et scripts
 COPY rootfs/ /
