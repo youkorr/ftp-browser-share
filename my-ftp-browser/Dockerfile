@@ -18,21 +18,21 @@ RUN pip3 install --no-cache-dir \
     flask \
     pyftpdlib
 
-# Copier les fichiers de configuration
-COPY rootfs /
-
 # Créer les répertoires nécessaires
 RUN mkdir -p \
+    /run/s6/services/nginx \
+    /run/s6/services/ftp-server \
     /usr/share/ftpbrowser \
     /config/www/partage/shared
 
-# Copier les fichiers de l'application
-COPY rootfs/usr/share/ftpbrowser /usr/share/ftpbrowser
+# Copier les fichiers de configuration
+COPY rootfs /
 
-# Donner les permissions d'exécution
-RUN chmod a+x /run.sh \
-    && chmod a+x /etc/services.d/nginx/run \
-    && chmod a+x /etc/services.d/ftp-server/run
+# Définir les permissions de manière explicite
+RUN set -x \
+    && find /etc/services.d -type f -name "run" -exec chmod 0755 {} \; \
+    && find /etc/cont-init.d -type f -exec chmod 0755 {} \; \
+    && chmod 0755 /run.sh
 
 # Installer les dépendances frontend
 WORKDIR /usr/share/ftpbrowser
@@ -44,7 +44,4 @@ RUN chown -R root:root /usr/share/ftpbrowser \
 
 # Point d'entrée par défaut de Home Assistant
 ENTRYPOINT ["/init"]
-
-# Commande à exécuter
-CMD ["/run.sh"]
 
