@@ -11,7 +11,8 @@ RUN apk add --no-cache \
     py3-pip \
     py3-flask \
     nodejs \
-    npm
+    npm \
+    tini
 
 # Installer les dépendances Python
 RUN pip3 install --no-cache-dir \
@@ -28,9 +29,6 @@ RUN mkdir -p \
 # Copier les fichiers de configuration
 COPY rootfs /
 
-# Rendre /init exécutable (important pour ENTRYPOINT)
-RUN chmod 755 /init
-
 # Définir les permissions de manière explicite
 RUN set -x \
     && find /etc/services.d -type f -name "run" -exec chmod 0755 {} \; \
@@ -45,7 +43,13 @@ RUN npm install
 RUN chown -R root:root /usr/share/ftpbrowser \
     && chmod -R 755 /usr/share/ftpbrowser
 
-# Point d'entrée par défaut de Home Assistant
-ENTRYPOINT ["/init"]
+# Make sure /init script exists and is executable
+RUN if [ -f "/init" ]; then chmod 755 /init; fi
+
+# Use tini as an init system
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Define your command to start your services
+CMD ["/run.sh"]
 
 
