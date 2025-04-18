@@ -1,0 +1,20 @@
+#!/bin/bash
+# Script de vérification des permissions
+
+# Vérifier et corriger les permissions des répertoires critiques
+echo "Vérification et correction des permissions..."
+
+# Répertoires
+chmod -R 755 /etc/services.d
+chmod -R 755 /etc/cont-init.d
+chmod 755 /run.sh
+
+# Créer les répertoires nécessaires
+mkdir -p /config/www/partage/shared
+chmod 755 /config/www/partage/shared
+
+# Afficher les informations de débogage
+echo "Permissions corrigées"
+ls -l /etc/services.d
+ls -l /etc/cont-init.d
+ls -l /run.sh
