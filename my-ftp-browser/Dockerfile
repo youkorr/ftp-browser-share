@@ -55,7 +55,7 @@ RUN chown -R root:root /usr/share/ftpbrowser \
 RUN chmod 755 /init || true
 
 # Point d'entrée pour S6
-ENTRYPOINT ["/init"]
-CMD []
+ENTRYPOINT ["/bin/sh", "-c"]
+CMD ["/run.sh"]
 
 
