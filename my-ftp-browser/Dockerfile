@@ -19,12 +19,15 @@ RUN apk add --no-cache \
 # Copier les fichiers de l'application
 COPY rootfs /
 
+# Créer le script de démarrage
+RUN echo '#!/bin/sh' > /run.sh && \
+    echo 'nginx' >> /run.sh && \
+    echo 'python3 /usr/share/ftpbrowser/api/server.py' >> /run.sh && \
+    chmod +x /run.sh
+
 # Installer les dépendances frontend
 WORKDIR /usr/share/ftpbrowser
 RUN npm install
 
-# Permissions
-RUN chmod a+x /run.sh
-
 # Point d'entrée
-CMD [ "/run.sh" ]
+CMD ["/run.sh"]
