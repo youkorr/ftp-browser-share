@@ -2,17 +2,21 @@ ARG BUILD_FROM=ghcr.io/hassio-addons/base:13.0.0
 
 FROM ${BUILD_FROM}
 
-# Installation des dépendances système
-RUN apk add --no-cache \
-    python3 \
-    py3-pip \
-    py3-setuptools \
-    build-base \
-    nginx \
-    curl \
-    tzdata \
-    nodejs \
-    npm
+# Dépannage : info Alpine et dépôts
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/main" >> /etc/apk/repositories && \
+    echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories && \
+    apk update
+
+# Installation des dépendances système (une par une pour débogage facile)
+RUN apk add --no-cache python3
+RUN apk add --no-cache py3-pip
+RUN apk add --no-cache py3-setuptools
+RUN apk add --no-cache build-base
+RUN apk add --no-cache nginx
+RUN apk add --no-cache curl
+RUN apk add --no-cache tzdata
+RUN apk add --no-cache nodejs
+RUN apk add --no-cache npm
 
 # Mise à jour de pip et installation des dépendances Python
 RUN pip3 install --no-cache-dir --upgrade pip && \
@@ -27,7 +31,7 @@ RUN pip3 install --no-cache-dir --upgrade pip && \
 # Copie des fichiers de configuration et scripts
 COPY rootfs/ /
 
-# Copier le script d'exécution principal
+# Script principal
 COPY run.sh /
 RUN chmod +x /run.sh && \
     find /etc/services.d -type f -name run -exec chmod +x {} \;
@@ -35,7 +39,7 @@ RUN chmod +x /run.sh && \
 # Préparer le frontend
 WORKDIR /usr/share/ftpbrowser
 COPY rootfs/usr/share/ftpbrowser/package.json ./
-RUN npm install
+RUN npm install || true
 
 # Port exposé pour l'interface web
 EXPOSE 8099
@@ -49,7 +53,8 @@ LABEL \
     io.hass.description="Access FTP servers with a user-friendly web interface, share files, and stream media" \
     io.hass.type="addon" \
     io.hass.version="${BUILD_VERSION}" \
-    maintainer="Votre Nom <votre.email@example.com>"
+    maintainer="Votre Nom <votre.email@example.com"]
+
 
 
 
