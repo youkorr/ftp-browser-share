@@ -1,62 +1,39 @@
 {
   "name": "FTP Browser Share",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "slug": "ftp_browser_share",
-  "description": "Access FTP servers with a user-friendly web interface, share files, and stream media",
+  "description": "Naviguer et partager des fichiers via FTP",
   "url": "https://github.com/votre-username/ftp-browser-share",
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
   "startup": "application",
   "boot": "auto",
-  "init": false,
-  "ingress": true,
-  "ingress_port": 8099,
-  "panel_icon": "mdi:file-multiple",
-  "homeassistant_api": true,
-  "hassio_api": true,
-  "hassio_role": "default",
-  "host_network": true,
-  "privileged": ["NET_ADMIN"],
-  "devices": [],
   "options": {
-    "ftp_servers": [
-      {
-        "name": "Default Server",
-        "host": "",
-        "port": 21,
-        "username": "",
-        "password": "",
-        "root_path": "/config",
-        "use_ssl": false
-      }
-    ],
-    "share_settings": {
-      "default_duration": 24,
-      "max_duration": 168,
-      "show_share_link": true
-    },
+    "ftp_server": "",
+    "ftp_port": 21,
+    "ftp_username": "",
+    "ftp_password": "",
+    "ftp_root_path": "/config",
+    "share_duration": 0,
     "log_level": "info"
   },
   "schema": {
-    "ftp_servers": [
-      {
-        "name": "str",
-        "host": "str",
-        "port": "int(1,65535)",
-        "username": "str",
-        "password": "password",
-        "root_path": "str?",
-        "use_ssl": "bool"
-      }
-    ],
-    "share_settings": {
-      "default_duration": "int(1,720)",
-      "max_duration": "int(1,720)",
-      "show_share_link": "bool"
-    },
-    "log_level": "list(trace|debug|info|warning|error)"
+    "ftp_server": "str",
+    "ftp_port": "int",
+    "ftp_username": "str", 
+    "ftp_password": "password",
+    "ftp_root_path": "str",
+    "share_duration": "int",
+    "log_level": "list(trace|debug|info|notice|warning|error|fatal)"
   },
-  "webui": "http://[HOST]:[PORT:8099]"
+  "ports": {
+    "80/tcp": 8099
+  },
+  "map": [
+    "config:rw",
+    "ssl"
+  ]
 }
+
 
 
 
