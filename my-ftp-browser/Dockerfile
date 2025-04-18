@@ -42,7 +42,7 @@ RUN npm install
 EXPOSE 8099
 
 # Point d’entrée supervisé par S6
-CMD [ "/init" ]
+ENTRYPOINT [ "/init" ]
 
 # Métadonnées
 LABEL \
