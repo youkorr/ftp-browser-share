@@ -28,6 +28,9 @@ RUN mkdir -p \
 # Copier les fichiers de configuration
 COPY rootfs /
 
+# Rendre /init exécutable (important pour ENTRYPOINT)
+RUN chmod 755 /init
+
 # Définir les permissions de manière explicite
 RUN set -x \
     && find /etc/services.d -type f -name "run" -exec chmod 0755 {} \; \
@@ -44,4 +47,5 @@ RUN chown -R root:root /usr/share/ftpbrowser \
 
 # Point d'entrée par défaut de Home Assistant
 ENTRYPOINT ["/init"]
+
 
