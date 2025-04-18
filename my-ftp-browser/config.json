@@ -1,9 +1,9 @@
 {
-  "name": "FTP Browser & Media Server",
+  "name": "FTP Browser Share",
   "version": "0.1.0",
-  "slug": "ftp_browser",
+  "slug": "ftp_browser_share",
   "description": "Access FTP servers with a user-friendly web interface, share files, and stream media",
-  "url": "https://github.com/yourusername/ha-ftp-browser",
+  "url": "https://github.com/votre-username/ftp-browser-share",
   "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
   "startup": "application",
   "boot": "auto",
@@ -18,16 +18,13 @@
   "privileged": ["NET_ADMIN"],
   "devices": [],
   "options": {
-    "ftp_servers": [
-      {
-        "name": "My FTP Server",
-        "host": "ftp.example.com",
-        "port": 21,
-        "username": "user",
-        "password": "pass",
-        "root_path": "/sdcard",
-        "use_ssl": false
-      }
+    "ftp_server": "",
+    "ftp_port": 21,
+    "ftp_username": "",
+    "ftp_password": "",
+    "ftp_root_path": "/config",
+    "share_duration": 0,
+    "log_level": "info"
     ],
     "share_settings": {
       "default_duration": 24,
