@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>FTP Browser Share</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="app">
+        <h1>FTP Browser Share</h1>
+        <div id="config-section">
+            <h2>Configuration</h2>
+            <form id="config-form">
+                <input type="text" name="ftp_server" placeholder="Serveur FTP" required>
+                <input type="number" name="ftp_port" placeholder="Port" default="21">
+                <input type="text" name="ftp_username" placeholder="Nom d'utilisateur" required>
+                <input type="password" name="ftp_password" placeholder="Mot de passe" required>
+                <input type="text" name="ftp_root_path" placeholder="Chemin racine">
+                <input type="number" name="share_duration" placeholder="Durée de partage (heures)">
+                <button type="submit">Sauvegarder</button>
+            </form>
+        </div>
+        <div id="file-browser">
+            <h2>Navigateur de fichiers</h2>
+            <ul id="file-list"></ul>
+        </div>
+    </div>
+    <script src="/js/app.js"></script>
+</body>
+</html>
