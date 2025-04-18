@@ -17,14 +17,17 @@ RUN apk add --no-cache \
     libffi-dev \
     openssl-dev
 
-# Mise à jour de pip et installation des dépendances Python (séparées pour faciliter le débogage)
-RUN pip3 install --no-cache-dir --upgrade pip
-RUN pip3 install --no-cache-dir flask
-RUN pip3 install --no-cache-dir requests
-RUN pip3 install --no-cache-dir PyJWT
-RUN pip3 install --no-cache-dir python-dateutil
-RUN pip3 install --no-cache-dir werkzeug
-RUN pip3 install --no-cache-dir pyftpdlib
+# Approche alternative pour Python - utiliser les packages apk lorsque disponibles
+RUN apk add --no-cache \
+    py3-flask \
+    py3-requests \
+    py3-jwt \
+    py3-dateutil \
+    py3-werkzeug
+
+# Pour pyftpdlib qui n'a peut-être pas de package Alpine, on utilisera pip 
+# mais d'une manière plus sûre
+RUN python3 -m pip install --no-cache-dir pyftpdlib --break-system-packages
 
 # Copie des fichiers de configuration et scripts
 COPY rootfs/ /
