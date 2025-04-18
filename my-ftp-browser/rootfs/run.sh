@@ -8,5 +8,4 @@ chmod 755 /etc/cont-init.d/*
 
 # Démarrer les services via S6
 echo "Démarrage des services FTP Browser Share..."
-exec /init
 
