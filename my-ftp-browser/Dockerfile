@@ -5,9 +5,7 @@ FROM ${BUILD_FROM}
 # Installation des dépendances système
 RUN apk add --no-cache \
     python3 \
-    python3-dev \
     py3-pip \
-    py3-wheel \
     py3-setuptools \
     build-base \
     nginx \
@@ -48,10 +46,10 @@ ENTRYPOINT ["/init"]
 # Métadonnées
 LABEL \
     io.hass.name="FTP Browser & Media Share" \
-    io.hass.description="Naviguer et partager des fichiers via FTP" \
     io.hass.description="Access FTP servers with a user-friendly web interface, share files, and stream media" \
     io.hass.type="addon" \
     io.hass.version="${BUILD_VERSION}" \
     maintainer="Votre Nom <votre.email@example.com>"
+
 
 
