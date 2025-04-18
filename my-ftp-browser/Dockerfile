@@ -5,9 +5,11 @@ FROM ${BUILD_FROM}
 # Installation des dépendances système
 RUN apk add --no-cache \
     python3 \
+    python3-dev \
     py3-pip \
     py3-wheel \
     py3-setuptools \
+    build-base \
     nginx \
     curl \
     tzdata \
@@ -17,11 +19,11 @@ RUN apk add --no-cache \
 # Mise à jour de pip et installation des dépendances Python
 RUN pip3 install --no-cache-dir --upgrade pip && \
     pip3 install --no-cache-dir \
-        Flask==2.0.1 \
-        requests==2.26.0 \
-        PyJWT==2.1.0 \
-        python-dateutil==2.8.2 \
-        werkzeug==2.0.3 \
+        flask \
+        requests \
+        PyJWT \
+        python-dateutil \
+        werkzeug \
         pyftpdlib
 
 # Copie des fichiers de configuration et scripts
