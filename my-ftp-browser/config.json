@@ -13,7 +13,8 @@
     "ftp_username": "",
     "ftp_password": "",
     "ftp_root_path": "/config",
-    "share_duration": 0
+    "share_duration": 0,
+    "log_level": "info"
   },
   "schema": {
     "ftp_server": "str",
@@ -21,7 +22,8 @@
     "ftp_username": "str", 
     "ftp_password": "password",
     "ftp_root_path": "str",
-    "share_duration": "int"
+    "share_duration": "int",
+    "log_level": "list(trace|debug|info|notice|warning|error|fatal)"
   },
   "ports": {
     "80/tcp": 8099
@@ -31,3 +33,4 @@
     "ssl"
   ]
 }
+
