@@ -1,39 +1,51 @@
-profile my-ftp-browser flags=(attach_disconnected,mediate_deleted) {
-  # Capacités de sécurité
-  deny mount,
-  deny umount,
-  
-  # Autoriser les accès nécessaires
-  /data/** rw,
-  /config/** rw,
-  /ssl/** r,
-  
-  # Script d'entrée (très important)
-  /run.sh ix,
-  
-  # Binaires système essentiels
-  /bin/* ix,
-  /sbin/* ix,
-  /usr/bin/* ix,
-  /usr/sbin/* ix,
-  /init ix,
-  
-  # Binaires Python
+profile ftp-browser-share flags=(attach_disconnected,mediate_deleted) {
+  # Autoriser l'exécution des binaires de base
+  /bin/** ix,
+  /sbin/** ix,
+  /usr/bin/** ix,
+  /usr/sbin/** ix,
+
+  # Autoriser Python et ses bibliothèques
   /usr/bin/python3 ix,
-  
-  # Accès aux librairies système
-  /lib/** rm,
-  /usr/lib/** rm,
-  /lib64/** rm,
-  
-  # Accès aux fichiers temporaires
-  /tmp/** rwk,
-  
-  # Accès aux fichiers proc
-  /proc/** r,
-  /proc/*/attr/** rw,
-  
+  /usr/lib/python3*/** r,
+  /usr/local/lib/python3*/** r,
+
+  # Autoriser Nginx
+  /usr/sbin/nginx ix,
+  /etc/nginx/** r,
+
+  # Accès aux répertoires de configuration
+  /config/** rw,
+  /data/** rw,
+  /ssl/** r,
+
+  # Répertoires temporaires
+  /tmp/** rw,
+
   # Accès réseau
   network inet tcp,
   network inet udp,
+
+  # Logs
+  /var/log/** w,
+
+  # Autoriser l'exécution des scripts
+  /run.sh ix,
+  /etc/services.d/** ix,
+  /etc/cont-init.d/** ix,
+
+  # Règles de base pour les opérations système
+  deny mount,
+  deny umount,
+  deny pivot_root,
+
+  # Profil de base pour les conteneurs
+  profile docker-default {
+    # Règles de base pour Docker
+    file,
+    network,
+    capability,
+  }
 }
+</boltArtifact>
+</boltArtifact>
