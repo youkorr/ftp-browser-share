@@ -11,28 +11,35 @@ RUN apk add --no-cache \
     py3-pip \
     py3-flask \
     nodejs \
-    npm
+    npm \
+    bash
 
 # Installer les dépendances Python
 RUN pip3 install --no-cache-dir \
     flask \
     pyftpdlib
 
-# Créer les répertoires nécessaires
+# Créer les répertoires nécessaires avec les bonnes permissions
 RUN mkdir -p \
     /run/s6/services/nginx \
     /run/s6/services/ftp-server \
     /usr/share/ftpbrowser \
-    /config/www/partage/shared
+    /config/www/partage/shared \
+    /etc/services.d/nginx \
+    /etc/services.d/ftp-server \
+    /etc/cont-init.d
 
 # Copier les fichiers de configuration
 COPY rootfs /
 
 # Définir les permissions de manière explicite
 RUN set -x \
-    && find /etc/services.d -type f -name "run" -exec chmod 0755 {} \; \
-    && find /etc/cont-init.d -type f -exec chmod 0755 {} \; \
-    && chmod 0755 /run.sh
+    && chmod 755 /run.sh \
+    && find /etc/services.d -type f -name "run" -exec chmod 755 {} \; \
+    && find /etc/cont-init.d -type f -exec chmod 755 {} \; \
+    && chown -R root:root /etc/services.d \
+    && chown -R root:root /etc/cont-init.d \
+    && chown -R root:root /run.sh
 
 # Installer les dépendances frontend
 WORKDIR /usr/share/ftpbrowser
