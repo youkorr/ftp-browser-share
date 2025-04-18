@@ -15,39 +15,34 @@ RUN apk add --no-cache \
     nodejs \
     npm \
     libffi-dev \
-    openssl-dev
-
-# Approche alternative pour Python - utiliser les packages apk lorsque disponibles
-RUN apk add --no-cache \
+    openssl-dev \
     py3-flask \
     py3-requests \
     py3-jwt \
     py3-dateutil \
     py3-werkzeug
 
-# Pour pyftpdlib qui n'a peut-être pas de package Alpine, on utilisera pip 
-# mais d'une manière plus sûre
+# Installation de pyftpdlib via pip
 RUN python3 -m pip install --no-cache-dir pyftpdlib --break-system-packages
 
-# Copie des fichiers de configuration et scripts
+# Copie des fichiers de configuration, scripts et frontend
 COPY rootfs/ /
 
-# Copier le script d'exécution principal
-COPY run.sh /
-RUN chmod +x /run.sh && \
-    find /etc/services.d -type f -name run -exec chmod +x {} \;
+# Permissions pour les scripts cont-init.d et services.d
+RUN chmod +x /run.sh \
+    && find /etc/cont-init.d/ -type f -exec chmod +x {} \; \
+    && find /etc/services.d/ -type f -name run -exec chmod +x {} \;
 
-# Préparer le frontend
+# Installer le frontend (si package.json existe)
 WORKDIR /usr/share/ftpbrowser
 COPY rootfs/usr/share/ftpbrowser/package.json ./
 RUN npm install
 
-# Port exposé pour l'interface web
+# Ports exposés
 EXPOSE 8099
 
-# Point d'entrée supervisé par S6
-RUN chmod +x /etc/services.d/ftp_browser/run
-RUN chmod +x /etc/cont-init.d/*
+# Point d’entrée supervisé par S6
+CMD [ "/init" ]
 
 # Métadonnées
 LABEL \
@@ -56,5 +51,6 @@ LABEL \
     io.hass.type="addon" \
     io.hass.version="${BUILD_VERSION}" \
     maintainer="Votre Nom <votre.email@example.com>"
+
 
 
