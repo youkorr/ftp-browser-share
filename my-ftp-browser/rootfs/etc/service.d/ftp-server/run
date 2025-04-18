@@ -1,3 +1,4 @@
 #!/usr/bin/with-contenv bashio
-# Démarrer Nginx
-exec nginx -g "daemon off;"
+# Démarrer le serveur API Python
+exec python3 /usr/share/ftpbrowser/api/server.py
+
