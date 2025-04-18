@@ -1,46 +1,32 @@
-FROM homeassistant/amd64-base-python:3.9-alpine3.13
+# Utiliser l'image de base de Hass.io addons
+FROM ghcr.io/hassio-addons/base:13.0.0
 
-# Métadonnées
-LABEL description="FTP Browser Share Addon"
-LABEL maintainer="Votre Nom"
-
-# Installer les dépendances système et Python
+# Installer les dépendances et les modules Python nécessaires
 RUN apk add --no-cache \
-    nginx \
     python3 \
     py3-pip \
-    py3-flask \
-    nodejs \
-    npm \
-    && pip3 install --no-cache-dir \
-    pyftpdlib \
-    flask
+    nginx \
+    netcat-openbsd
 
-# Copier les fichiers de l'application
-COPY rootfs /
+# Installer les packages Python nécessaires
+RUN pip3 install --no-cache-dir flask
+
+# Copier les fichiers de configuration et le script de démarrage
+COPY rootfs/ /
+COPY run.sh /
+
+# Modifier les permissions pour les scripts
+RUN chmod +x /run.sh && \
+    chmod +x /etc/services.d/nginx/run && \
+    chmod +x /etc/services.d/ftp-server/run && \
+    chmod +x /usr/share/ftpbrowser/api/server.py
 
 # Créer les répertoires nécessaires
-RUN mkdir -p \
-    /usr/share/ftpbrowser \
-    /config/www/partage/shared \
-    /run/nginx
+RUN mkdir -p /etc/ftpbrowser /data/ftpbrowser/shares
 
-# Copier et préparer les fichiers
-COPY rootfs/usr/share/ftpbrowser /usr/share/ftpbrowser
-COPY rootfs/run.sh /
-RUN chmod a+x /run.sh
+# Exposer le port utilisé par l'application
+EXPOSE 8099
 
-# Installer les dépendances frontend
-WORKDIR /usr/share/ftpbrowser
-RUN npm install
-
-# Permissions et préparation
-RUN chown -R root:root /usr/share/ftpbrowser \
-    && chmod -R 755 /usr/share/ftpbrowser \
-    && chmod -R 755 /config
-
-# Point d'entrée par défaut de Home Assistant
+# Point d'entrée du conteneur
 ENTRYPOINT ["/init"]
 
-# Commande à exécuter
-CMD ["/run.sh"]
