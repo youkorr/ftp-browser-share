@@ -18,13 +18,16 @@
   "privileged": ["NET_ADMIN"],
   "devices": [],
   "options": {
-    "ftp_server": "",
-    "ftp_port": 21,
-    "ftp_username": "",
-    "ftp_password": "",
-    "ftp_root_path": "/config",
-    "share_duration": 0,
-    "log_level": "info"
+    "ftp_servers": [
+      {
+        "name": "Default Server",
+        "host": "",
+        "port": 21,
+        "username": "",
+        "password": "",
+        "root_path": "/config",
+        "use_ssl": false
+      }
     ],
     "share_settings": {
       "default_duration": 24,
