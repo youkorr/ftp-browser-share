@@ -21,16 +21,19 @@ RUN apk add --no-cache \
     openssl-dev
 
 # Installation des dépendances Python
-# Mise à jour de pip séparément
-RUN pip3 install --no-cache-dir --upgrade pip
+# Création d'un environnement virtuel Python pour éviter les conflits
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Installation des dépendances Python une par une pour mieux identifier les erreurs
-RUN pip3 install --no-cache-dir Flask==2.0.1 --break-system-packages
-RUN pip3 install --no-cache-dir Werkzeug==2.0.3 --break-system-packages
-RUN pip3 install --no-cache-dir requests==2.26.0 --break-system-packages
-RUN pip3 install --no-cache-dir PyJWT==2.1.0 --break-system-packages
-RUN pip3 install --no-cache-dir python-dateutil==2.8.2 --break-system-packages
-RUN pip3 install --no-cache-dir pyftpdlib --break-system-packages
+# Installation des dépendances Python dans l'environnement virtuel
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
+    Flask==2.0.1 \
+    Werkzeug==2.0.3 \
+    requests==2.26.0 \
+    PyJWT==2.1.0 \
+    python-dateutil==2.8.2 \
+    pyftpdlib
 
 # Copie des fichiers de configuration, scripts et frontend
 COPY rootfs/ /
@@ -57,6 +60,5 @@ LABEL \
     io.hass.type="addon" \
     io.hass.version="${BUILD_VERSION}" \
     maintainer="Votre Nom <votre.email@example.com>"
-
 
 
