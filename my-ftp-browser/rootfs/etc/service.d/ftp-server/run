@@ -1,0 +1,3 @@
+#!/usr/bin/with-contenv bashio
+# Démarrer le serveur API Python
+exec python3 /usr/share/ftpbrowser/api/server.py
