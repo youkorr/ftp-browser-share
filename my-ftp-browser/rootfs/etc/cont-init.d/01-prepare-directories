@@ -1,0 +1,14 @@
+#!/usr/bin/with-contenv bashio
+# Préparer les répertoires
+bashio::log.info "Preparing directories..."
+
+# Créer les répertoires nécessaires
+mkdir -p /config/www/partage/shared
+chmod 755 /config/www/partage/shared
+
+# Vérifier les permissions des scripts
+chmod 755 /run.sh
+chmod 755 /etc/services.d/nginx/run
+chmod 755 /etc/services.d/ftp-server/run
+
+bashio::log.info "Directories and scripts prepared successfully."
