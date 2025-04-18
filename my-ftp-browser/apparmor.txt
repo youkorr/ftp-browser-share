@@ -25,4 +25,8 @@ profile ftp-browser-share {
   /run.sh ix,
   /etc/services.d/** ix,
   /etc/cont-init.d/** ix,
+
+  # Autoriser /init à être exécuté
+  /init ix,
 }
+
