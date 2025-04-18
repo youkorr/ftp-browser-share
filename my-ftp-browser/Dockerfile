@@ -1,55 +1,54 @@
-FROM homeassistant/amd64-base-python:3.9-alpine3.13
+ARG BUILD_FROM=ghcr.io/hassio-addons/base:13.0.0
 
-# Métadonnées
-LABEL description="FTP Browser Share Addon"
-LABEL maintainer="Votre Nom"
+FROM ${BUILD_FROM}
 
-# Installer les dépendances système
+# Installation des dépendances système
 RUN apk add --no-cache \
-    nginx \
     python3 \
     py3-pip \
-    py3-flask \
+    py3-wheel \
+    py3-setuptools \
+    nginx \
+    curl \
+    tzdata \
     nodejs \
-    npm \
-    bash
+    npm
 
-# Installer les dépendances Python
-RUN pip3 install --no-cache-dir \
-    flask \
-    pyftpdlib
+# Mise à jour de pip et installation des dépendances Python
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir \
+        Flask==2.0.1 \
+        requests==2.26.0 \
+        PyJWT==2.1.0 \
+        python-dateutil==2.8.2 \
+        werkzeug==2.0.3 \
+        pyftpdlib
 
-# Créer les répertoires nécessaires avec les bonnes permissions
-RUN mkdir -p \
-    /run/s6/services/nginx \
-    /run/s6/services/ftp-server \
-    /usr/share/ftpbrowser \
-    /config/www/partage/shared \
-    /etc/services.d/nginx \
-    /etc/services.d/ftp-server \
-    /etc/cont-init.d
+# Copie des fichiers de configuration et scripts
+COPY rootfs/ /
 
-# Copier les fichiers de configuration
-COPY rootfs /
+# Copier le script d'exécution principal
+COPY run.sh /
+RUN chmod +x /run.sh && \
+    find /etc/services.d -type f -name run -exec chmod +x {} \;
 
-# Définir les permissions de manière explicite
-RUN set -x \
-    && chmod 755 /run.sh \
-    && find /etc/services.d -type f -name "run" -exec chmod 755 {} \; \
-    && find /etc/cont-init.d -type f -exec chmod 755 {} \; \
-    && chown -R root:root /etc/services.d \
-    && chown -R root:root /etc/cont-init.d \
-    && chown -R root:root /run.sh
-
-# Installer les dépendances frontend
+# Préparer le frontend
 WORKDIR /usr/share/ftpbrowser
+COPY rootfs/usr/share/ftpbrowser/package.json ./
 RUN npm install
 
-# Nettoyer et préparer
-RUN chown -R root:root /usr/share/ftpbrowser \
-    && chmod -R 755 /usr/share/ftpbrowser
+# Port exposé pour l'interface web
+EXPOSE 8099
 
-# Point d'entrée par défaut de Home Assistant
+# Point d'entrée supervisé par S6
 ENTRYPOINT ["/init"]
+
+# Métadonnées
+LABEL \
+    io.hass.name="FTP Browser & Media Share" \
+    io.hass.description="Naviguer et partager des fichiers via FTP" \
+    io.hass.type="addon" \
+    io.hass.version="${BUILD_VERSION}" \
+    maintainer="Votre Nom <votre.email@example.com>"
 
 
