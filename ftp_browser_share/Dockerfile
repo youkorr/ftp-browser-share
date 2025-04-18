@@ -1,44 +1,44 @@
-FROM python:3.9-slim
+FROM python:3.9-alpine
 
-# Install Node.js 18.x
-RUN apt-get update && apt-get install -y \
-    curl \
-    gnupg \
-    lftp \
-    && curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
-    && apt-get install -y \
+# Installer les dépendances système
+RUN apk add --no-cache \
+    build-base \
+    linux-headers \
+    nginx \
     nodejs \
-    && rm -rf /var/lib/apt/lists/*
+    npm
 
-# Install Python dependencies
-RUN pip install --no-cache-dir flask flask-cors pyftpdlib
-
-# Create app directory
+# Définir le répertoire de travail
 WORKDIR /app
 
-# Copy all files
-COPY . .
+# Copier les fichiers du backend
+COPY backend/ ./backend/
+COPY requirements.txt .
 
-# Debug information
-RUN echo "Node version:" && node --version
-RUN echo "NPM version:" && npm --version
-RUN echo "Package.json content:" && cat package.json
-RUN echo "Directory structure:" && ls -la
+# Copier les fichiers frontend
+COPY frontend/ ./frontend/
 
-# Install packages with detailed logs
-RUN npm install --verbose
+# Copier la configuration Nginx
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# Try to run the build with debugging
-RUN npm run build --verbose || (echo "BUILD FAILED - Debug info:" && \
-    npm list && \
-    echo "LOGS:" && \
-    cat npm-debug.log* 2>/dev/null || echo "No npm debug log found" && \
-    exit 1)
+# Installer les dépendances Python
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Make scripts executable
-RUN chmod +x /app/run.sh
-RUN chmod +x /app/api/start_api.sh
+# Installer les dépendances frontend
+WORKDIR /app/frontend
+RUN npm install
+RUN npm run build
 
-EXPOSE 3000
+# Revenir au répertoire principal
+WORKDIR /app
 
-CMD [ "/app/run.sh" ]
+# Copier le script de démarrage
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+# Exposer les ports
+EXPOSE 80 8099
+
+# Point d'entrée
+CMD ["/entrypoint.sh"]
+
