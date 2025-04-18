@@ -1,51 +1,28 @@
-profile ftp-browser-share flags=(attach_disconnected,mediate_deleted) {
+profile ftp-browser-share {
   # Autoriser l'exécution des binaires de base
   /bin/** ix,
   /sbin/** ix,
   /usr/bin/** ix,
   /usr/sbin/** ix,
 
-  # Autoriser Python et ses bibliothèques
+  # Autoriser Python
   /usr/bin/python3 ix,
   /usr/lib/python3*/** r,
-  /usr/local/lib/python3*/** r,
 
   # Autoriser Nginx
   /usr/sbin/nginx ix,
-  /etc/nginx/** r,
 
-  # Accès aux répertoires de configuration
+  # Accès aux répertoires
   /config/** rw,
   /data/** rw,
-  /ssl/** r,
-
-  # Répertoires temporaires
   /tmp/** rw,
 
   # Accès réseau
   network inet tcp,
   network inet udp,
 
-  # Logs
-  /var/log/** w,
-
   # Autoriser l'exécution des scripts
   /run.sh ix,
   /etc/services.d/** ix,
   /etc/cont-init.d/** ix,
-
-  # Règles de base pour les opérations système
-  deny mount,
-  deny umount,
-  deny pivot_root,
-
-  # Profil de base pour les conteneurs
-  profile docker-default {
-    # Règles de base pour Docker
-    file,
-    network,
-    capability,
-  }
 }
-</boltArtifact>
-</boltArtifact>
