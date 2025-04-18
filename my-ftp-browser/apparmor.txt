@@ -1,32 +1,72 @@
-profile ftp-browser-share {
-  # Autoriser l'exécution des binaires de base
-  /bin/** ix,
-  /sbin/** ix,
-  /usr/bin/** ix,
-  /usr/sbin/** ix,
+#include <tunables/global>
 
-  # Autoriser Python
-  /usr/bin/python3 ix,
-  /usr/lib/python3*/** r,
+profile ftp-browser-share flags=(attach_disconnected,mediate_deleted) {
+  # Inclure les abstractions de base
+  #include <abstractions/base>
 
-  # Autoriser Nginx
-  /usr/sbin/nginx ix,
+  capability,
+  file,
+  signal,
+  mount,
+  umount,
+  remount,
+  network udp,
+  network tcp,
+  network dgram,
+  network stream,
+  network inet,
+  network inet6,
+  network netlink raw,
+  network unix dgram,
 
-  # Accès aux répertoires
-  /config/** rw,
-  /data/** rw,
-  /tmp/** rw,
-
-  # Accès réseau
-  network inet tcp,
-  network inet udp,
-
-  # Autoriser l'exécution des scripts
-  /run.sh ix,
-  /etc/services.d/** ix,
-  /etc/cont-init.d/** ix,
-
-  # Autoriser /init à être exécuté
+  capability setgid,
+  capability setuid,
+  capability sys_admin,
+  capability dac_read_search,
+  
+  # Permettre l'exécution de /init et des scripts S6
   /init ix,
+  /run/{s6,s6-rc*,service}/** ix,
+  /package/** ix,
+  /command/** ix,
+  
+  # Autorisation d'écriture et de lecture sur certains répertoires
+  /run/{,**} rwk,
+  /dev/tty rw,
+  /bin/** ix,
+  /usr/bin/** ix,
+  /usr/lib/bashio/** ix,
+  /etc/s6/** rix,
+  /run/s6/** rix,
+  
+  # Autorisation des fichiers nécessaires pour le démarrage
+  /etc/services.d/** rwix,
+  /etc/cont-init.d/** rwix,
+  /etc/cont-finish.d/** rwix,
+
+  # Permettre l'accès au répertoire /data (par exemple pour les fichiers de configuration ou logs)
+  /data/** rw,
+
+  # Permettre la lecture des fichiers nécessaires pour le container
+  /usr/lib/** r,
+
+  # Suppression des refus de ptrace pour l'utilisation de `docker ps` ou `ps` dans le conteneur
+  ptrace (trace,read) peer=docker-default,
+
+  # Permissions pour les périphériques et certains fichiers système
+  /dev/i2c-1 mrwkl,
+  /dev/fuse mrwkl,
+  /dev/sda1 mrwkl,
+  /dev/sdb1 mrwkl,
+  /dev/nvme0 mrwkl,
+  /dev/nvme1 mrwkl,
+  /dev/mmcblk0p1 mrwkl,
+
+  # Accès en lecture/écriture pour certains fichiers systèmes
+  /tmp/** mrkwl,
+  
+  # Suppression de restrictions de signal pour le démon Docker
+  signal (receive) set=(kill,term) peer=/usr/bin/docker,
 }
+
 
