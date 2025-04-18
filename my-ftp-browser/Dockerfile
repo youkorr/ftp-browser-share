@@ -1,13 +1,11 @@
-ARG BUILD_FROM=ghcr.io/hassio-addons/base:13.0.0
+FROM alpine:3.19
 
-FROM ${BUILD_FROM}
-
-# Ajouter les dépôts Alpine si manquants
+# Ajouter les dépôts nécessaires
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/main" >> /etc/apk/repositories && \
     echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories && \
     apk update
 
-# Installation des dépendances manuellement (remplace build-base)
+# Installer les dépendances système
 RUN apk add --no-cache \
     python3 \
     py3-pip \
@@ -59,6 +57,7 @@ LABEL \
     io.hass.type="addon" \
     io.hass.version="${BUILD_VERSION}" \
     maintainer="Votre Nom <votre.email@example.com"]
+
 
 
 
