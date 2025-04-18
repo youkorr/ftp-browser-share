@@ -46,7 +46,7 @@ RUN npm install
 EXPOSE 8099
 
 # Point d'entrée supervisé par S6
-RUN chmod +x /init
+RUN chmod +x /etc/cont-init.d/*
 
 # Métadonnées
 LABEL \
