@@ -1,9 +1,7 @@
 #!/usr/bin/with-contenv bashio
-# Démarrer Nginx
-nginx
+# Démarrer les services via S6
+/etc/services.d/nginx/run &
+/etc/services.d/ftp-server/run &
 
-# Démarrer l'API Python
-python3 /usr/share/ftpbrowser/api/server.py &
-
-# Attendre que les processus se terminent
+# Attendre la fin des processus
 wait
