@@ -1,3 +1,11 @@
-#!/usr/bin/with-contenv bashio
+#!/bin/bash
+# Script de démarrage principal
+
+# Vérifier et corriger les permissions
+chmod 755 /run.sh
+chmod 755 /etc/services.d/*/run
+chmod 755 /etc/cont-init.d/*
+
 # Démarrer les services via S6
-bashio::log.info "Starting FTP Browser Share services..."
+echo "Démarrage des services FTP Browser Share..."
+exec /init
