@@ -1,0 +1,33 @@
+{
+  "name": "FTP Browser Share",
+  "version": "1.0.0",
+  "slug": "ftp_browser_share",
+  "description": "Naviguer et partager des fichiers via FTP",
+  "url": "https://github.com/votre-username/my-ftp-browser",
+  "arch": ["armhf", "armv7", "aarch64", "amd64", "i386"],
+  "startup": "application",
+  "boot": "auto",
+  "options": {
+    "ftp_server": "",
+    "ftp_port": 21,
+    "ftp_username": "",
+    "ftp_password": "",
+    "ftp_root_path": "",
+    "share_duration": 0
+  },
+  "schema": {
+    "ftp_server": "str",
+    "ftp_port": "int",
+    "ftp_username": "str", 
+    "ftp_password": "password",
+    "ftp_root_path": "str",
+    "share_duration": "int"
+  },
+  "ports": {
+    "80/tcp": 8099
+  },
+  "map": [
+    "config:rw",
+    "ssl"
+  ]
+}
