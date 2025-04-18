@@ -46,6 +46,7 @@ RUN npm install
 EXPOSE 8099
 
 # Point d'entrée supervisé par S6
+RUN chmod +x /etc/services.d/ftp_browser/run
 RUN chmod +x /etc/cont-init.d/*
 
 # Métadonnées
