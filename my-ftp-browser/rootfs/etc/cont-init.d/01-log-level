@@ -1,10 +1,7 @@
-#!/usr/bin/with-contenv bashio
+#!/bin/bash
 # Configurer le niveau de log
-if bashio::config.exists 'log_level'; then
-    log_level=$(bashio::config 'log_level')
-else
-    log_level="info"
-fi
+echo "Configuration du niveau de log..."
 
-bashio::log.level "$log_level"
-bashio::log.info "Log level set to ${log_level}"
+# Utiliser un niveau de log par défaut si non spécifié
+LOG_LEVEL=${LOG_LEVEL:-info}
+echo "Niveau de log : $LOG_LEVEL"
