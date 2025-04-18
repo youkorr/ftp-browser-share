@@ -28,6 +28,13 @@ RUN python3 -m pip install --no-cache-dir pyftpdlib --break-system-packages
 # Copie des fichiers de configuration, scripts et frontend
 COPY rootfs/ /
 
+# Installer les dépendances Python en séparant chaque commande pour une meilleure visibilité des erreurs
+RUN pip3 install --no-cache-dir --upgrade pip && \
+    pip3 install --no-cache-dir Flask==2.0.1 && \
+    pip3 install --no-cache-dir Werkzeug==2.0.3 && \
+    pip3 install --no-cache-dir requests==2.26.0 && \
+    pip3 install --no-cache-dir PyJWT==2.1.0 && \
+    pip3 install --no-cache-dir python-dateutil==2.8.2
 # Permissions pour les scripts cont-init.d et services.d
 RUN chmod +x /run.sh \
     && find /etc/cont-init.d/ -type f -exec chmod +x {} \; \
@@ -38,6 +45,9 @@ WORKDIR /usr/share/ftpbrowser
 COPY rootfs/usr/share/ftpbrowser/package.json ./
 RUN npm install
 
+# Rendre les scripts exécutables
+RUN chmod a+x /run.sh && \
+    find /etc/services.d -type f -name run -exec chmod a+x {} \;
 # Ports exposés
 EXPOSE 8099
 
@@ -47,6 +57,7 @@ ENTRYPOINT [ "/init" ]
 # Métadonnées
 LABEL \
     io.hass.name="FTP Browser & Media Share" \
+    io.hass.description="Access FTP servers with a user-friendly web interface, share files, and stream media" \
     io.hass.description="Naviguer et partager des fichiers via FTP" \
     io.hass.type="addon" \
     io.hass.version="${BUILD_VERSION}" \
