@@ -19,15 +19,28 @@ RUN apk add --no-cache \
 # Copier les fichiers de l'application
 COPY rootfs /
 
-# Créer le script de démarrage
-RUN echo '#!/bin/sh' > /run.sh && \
-    echo 'nginx' >> /run.sh && \
-    echo 'python3 /usr/share/ftpbrowser/api/server.py' >> /run.sh && \
-    chmod +x /run.sh
+# Créer les répertoires nécessaires
+RUN mkdir -p \
+    /usr/share/ftpbrowser \
+    /config/www/partage/shared \
+    /run/nginx
+
+# Copier et préparer les fichiers
+COPY rootfs/usr/share/ftpbrowser /usr/share/ftpbrowser
+COPY rootfs/run.sh /
+RUN chmod a+x /run.sh
 
 # Installer les dépendances frontend
 WORKDIR /usr/share/ftpbrowser
 RUN npm install
 
-# Point d'entrée
+# Permissions et préparation
+RUN chown -R root:root /usr/share/ftpbrowser \
+    && chmod -R 755 /usr/share/ftpbrowser \
+    && chmod -R 755 /config
+
+# Point d'entrée par défaut de Home Assistant
+ENTRYPOINT ["/init"]
+
+# Commande à exécuter
 CMD ["/run.sh"]
