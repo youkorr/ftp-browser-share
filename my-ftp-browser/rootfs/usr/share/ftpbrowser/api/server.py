@@ -1,7 +1,9 @@
 import os
-import ftplib
 import json
 from flask import Flask, request, jsonify, send_from_directory
+from pyftpdlib.servers import FTPServer
+from pyftpdlib.handlers import FTPHandler
+from pyftpdlib.authorizers import DummyAuthorizer
 import shutil
 from datetime import datetime, timedelta
 
@@ -12,23 +14,28 @@ def load_config():
     with open('/data/options.json', 'r') as f:
         return json.load(f)
 
-# Connexion FTP
+# Connexion FTP (utilisation de pyftpdlib)
 def connect_ftp():
     config = load_config()
-    ftp = ftplib.FTP()
-    ftp.connect(config['ftp_server'], config['ftp_port'])
-    ftp.login(user=config['ftp_username'], passwd=config['ftp_password'])
-    if config['ftp_root_path']:
-        ftp.cwd(config['ftp_root_path'])
-    return ftp
+    authorizer = DummyAuthorizer()
+    authorizer.add_user(
+        config['ftp_username'], 
+        config['ftp_password'], 
+        config['ftp_root_path'] or '/config', 
+        perm='elradfmwMT'
+    )
+    
+    handler = FTPHandler
+    handler.authorizer = authorizer
+    return handler, authorizer
 
 # API - Liste des fichiers FTP
 @app.route('/api/files', methods=['GET'])
 def list_files():
     try:
-        ftp = connect_ftp()
-        files = ftp.nlst()
-        ftp.quit()
+        config = load_config()
+        root_path = config['ftp_root_path'] or '/config'
+        files = os.listdir(root_path)
         return jsonify(files)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -37,15 +44,11 @@ def list_files():
 @app.route('/api/download/<path:filename>', methods=['GET'])
 def download_file(filename):
     try:
-        ftp = connect_ftp()
-        local_path = f"/config/www/partage/{filename}"
-        os.makedirs(os.path.dirname(local_path), exist_ok=True)
+        config = load_config()
+        root_path = config['ftp_root_path'] or '/config'
+        local_path = os.path.join(root_path, filename)
         
-        with open(local_path, 'wb') as local_file:
-            ftp.retrbinary(f'RETR {filename}', local_file.write)
-        
-        ftp.quit()
-        return send_from_directory('/config/www/partage', filename, as_attachment=True)
+        return send_from_directory(root_path, filename, as_attachment=True)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -57,10 +60,12 @@ def share_file():
     duration = config.get('share_duration', 0)
     
     try:
-        source_path = f"/config/www/partage/{filename}"
-        share_path = f"/config/www/partage/shared/{filename}"
+        root_path = config['ftp_root_path'] or '/config'
+        source_path = os.path.join(root_path, filename)
+        share_dir = "/config/www/partage/shared"
+        share_path = os.path.join(share_dir, filename)
         
-        os.makedirs(os.path.dirname(share_path), exist_ok=True)
+        os.makedirs(share_dir, exist_ok=True)
         shutil.copy(source_path, share_path)
         
         if duration > 0:
@@ -97,6 +102,8 @@ def handle_config():
 # Nettoyage des fichiers expirés
 def cleanup_shared_files():
     shared_dir = "/config/www/partage/shared"
+    os.makedirs(shared_dir, exist_ok=True)
+    
     for filename in os.listdir(shared_dir):
         if filename.endswith('.expiry'):
             with open(os.path.join(shared_dir, filename), 'r') as f:
@@ -107,7 +114,5 @@ def cleanup_shared_files():
                     os.remove(os.path.join(shared_dir, filename))
 
 if __name__ == '__main__':
-    os.makedirs("/config/www/partage", exist_ok=True)
-    os.makedirs("/config/www/partage/shared", exist_ok=True)
     cleanup_shared_files()
     app.run(host='0.0.0.0', port=8099)
