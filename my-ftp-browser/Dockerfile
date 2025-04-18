@@ -4,9 +4,17 @@ FROM ${BUILD_FROM}
 # Définir la version du build
 ARG BUILD_VERSION=dev
 
-# Mise à jour des référentiels et installation des dépendances système
-RUN apk update && \
-    apk add --no-cache \
+# Configuration des miroirs et diagnostic de réseau
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/v3.18/main" > /etc/apk/repositories && \
+    echo "http://dl-cdn.alpinelinux.org/alpine/v3.18/community" >> /etc/apk/repositories && \
+    echo "===== Diagnostic de réseau =====" && \
+    ping -c 4 dl-cdn.alpinelinux.org || echo "Échec du ping" && \
+    echo "===== Contenu des repositories =====" && \
+    cat /etc/apk/repositories && \
+    echo "===== Tentative de mise à jour =====" && \
+    apk update --allow-untrusted && \
+    echo "===== Installation des packages =====" && \
+    apk add --no-cache --allow-untrusted \
     python3 \
     python3-dev \
     py3-pip \
