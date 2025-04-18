@@ -2,21 +2,26 @@ ARG BUILD_FROM=ghcr.io/hassio-addons/base:13.0.0
 
 FROM ${BUILD_FROM}
 
-# Dépannage : info Alpine et dépôts
+# Ajouter les dépôts Alpine si manquants
 RUN echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/main" >> /etc/apk/repositories && \
     echo "http://dl-cdn.alpinelinux.org/alpine/latest-stable/community" >> /etc/apk/repositories && \
     apk update
 
-# Installation des dépendances système (une par une pour débogage facile)
-RUN apk add --no-cache python3
-RUN apk add --no-cache py3-pip
-RUN apk add --no-cache py3-setuptools
-RUN apk add --no-cache build-base
-RUN apk add --no-cache nginx
-RUN apk add --no-cache curl
-RUN apk add --no-cache tzdata
-RUN apk add --no-cache nodejs
-RUN apk add --no-cache npm
+# Installation des dépendances manuellement (remplace build-base)
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    py3-setuptools \
+    gcc \
+    g++ \
+    musl-dev \
+    make \
+    binutils \
+    nginx \
+    curl \
+    tzdata \
+    nodejs \
+    npm
 
 # Mise à jour de pip et installation des dépendances Python
 RUN pip3 install --no-cache-dir --upgrade pip && \
@@ -44,7 +49,7 @@ RUN npm install || true
 # Port exposé pour l'interface web
 EXPOSE 8099
 
-# Point d'entrée supervisé par S6
+# Point d’entrée supervisé par S6
 ENTRYPOINT ["/init"]
 
 # Métadonnées
@@ -54,6 +59,7 @@ LABEL \
     io.hass.type="addon" \
     io.hass.version="${BUILD_VERSION}" \
     maintainer="Votre Nom <votre.email@example.com"]
+
 
 
 
